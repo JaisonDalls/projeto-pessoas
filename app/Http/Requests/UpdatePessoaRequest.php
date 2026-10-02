@@ -23,7 +23,11 @@ class UpdatePessoaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nome' => ['required', 'string', 'max:265'],
+            'cpf' => ['required', 'string', 'unique:pessoas,cpf'],
+            'tipo' => ['required', 'in:física,jurídica'],
+            'telefone' => ['nullable', 'string'],
+            'email' => ['required', 'email', 'max:265'],
         ];
     }
 }
