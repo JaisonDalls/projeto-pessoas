@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pessoa extends Model
 {
 
-    protected $fillable = ['nome', 'cpf', 'tipo, telefone', 'email'];
+    protected $fillable = ['nome', 'cpf', 'tipo', 'telefone', 'email'];
     
     /** @use HasFactory<\Database\Factories\PessoaFactory> */
     use HasFactory;
