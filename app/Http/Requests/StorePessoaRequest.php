@@ -2,62 +2,51 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Override;
+use Illuminate\Validation\Rule;
 
 class StorePessoaRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Prepare data validations
-     * 
-    */
     protected function prepareForValidation(): void
     {
         $this->merge([
             'cpf' => $this->cpf ? preg_replace('/\D/', '', $this->cpf) : null,
-            'telefone' => $this->telefone ? preg_replace('/\D/', '', $this->telefone) : null
+            'telefone' => $this->telefone ? preg_replace('/\D/', '', $this->telefone) : null,
         ]);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:265'],
-            'cpf' => ['required', 'string', 'unique:pessoas,cpf'],
-            'tipo' => ['required', 'in:física,jurídica'],
-            'telefone' => ['nullable', 'string'],
-            'email' => ['required', 'email', 'max:265'],
+            'nome' => ['required', 'string', 'max:255'],
+            'cpf' => [
+                'required',
+                'digits:'.($this->input('tipo') === 'jurídica' ? 14 : 11),
+                Rule::unique('pessoas', 'cpf'),
+            ],
+            'tipo' => ['required', Rule::in(['física', 'jurídica'])],
+            'telefone' => ['nullable', 'digits_between:10,11'],
+            'email' => ['required', 'email', 'max:255'],
         ];
     }
 
-    /**
-     * Error messages customization
-     * 
-    */
-    public function messages()
+    public function messages(): array
     {
         return [
             'nome.required' => 'O campo nome é obrigatório.',
-            'nome.min' => 'O nome deve ter pelo menos 3 caracteres.',
             'cpf.required' => 'O campo CPF/CNPJ é obrigatório.',
-            'tipo.required' => 'Selecione se a pessoa é Física ou Jurídica.',
+            'cpf.digits' => 'Informe um CPF ou CNPJ válido.',
+            'cpf.unique' => 'Este CPF/CNPJ já está cadastrado para outra pessoa.',
+            'tipo.required' => 'Selecione o tipo de pessoa.',
             'tipo.in' => 'O tipo informado deve ser física ou jurídica.',
+            'telefone.digits_between' => 'Informe um telefone com DDD e 8 ou 9 dígitos.',
             'email.required' => 'O campo e-mail é obrigatório.',
-            'email.email' => 'Informe um endereço de e-mail válido.'
+            'email.email' => 'Informe um endereço de e-mail válido.',
         ];
     }
 }

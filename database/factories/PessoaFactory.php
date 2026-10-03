@@ -18,7 +18,11 @@ class PessoaFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nome' => fake()->name(),
+            'cpf' => fake()->unique()->numerify('###########'),
+            'tipo' => 'física',
+            'telefone' => fake()->numerify('###########'),
+            'email' => fake()->unique()->safeEmail(),
         ];
     }
 }

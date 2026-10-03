@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePessoaRequest;
 use App\Http\Requests\UpdatePessoaRequest;
 use App\Models\Pessoa;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PessoaController extends Controller
@@ -12,13 +13,28 @@ class PessoaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //Recupera as pessoas da tabela paginadas e com algum filtro ordenadas pelo último registro.
-        $pessoas = Pessoa::query()->latest()->paginate(5)->withQueryString();
+        $filters = $request->only('search', 'tipo');
 
-        return Inertia::render('Pessoas/index', ['pessoas' => $pessoas]);
-        
+        $pessoas = Pessoa::query()
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('nome', 'like', "%{$search}%")
+                        ->orWhere('cpf', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('telefone', 'like', "%{$search}%");
+                });
+            })
+            ->when($filters['tipo'] ?? null, fn ($query, $tipo) => $query->where('tipo', $tipo))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Pessoas/Index', [
+            'pessoas' => $pessoas,
+            'filters' => $filters,
+        ]);
     }
 
     /**
@@ -34,9 +50,9 @@ class PessoaController extends Controller
      */
     public function store(StorePessoaRequest $request)
     {
-        Pessoa::create($request->validated());
+        $pessoa = Pessoa::create($request->validated());
 
-        return redirect()->route('pessoa.index')->with('success', "Pessoa {$request->nome}  cadastrada com sucesso!");
+        return redirect()->route('pessoas.show', $pessoa)->with('success', 'Pessoa cadastrada com sucesso.');
     }
 
     /**
@@ -44,7 +60,7 @@ class PessoaController extends Controller
      */
     public function show(Pessoa $pessoa)
     {
-        return Inertia::render('Pessoas/Show',['pessoa' => $pessoa]);
+        return Inertia::render('Pessoas/Show', ['pessoa' => $pessoa]);
     }
 
     /**
@@ -52,7 +68,7 @@ class PessoaController extends Controller
      */
     public function edit(Pessoa $pessoa)
     {
-        return Inertia::render('Pessoa/Edit', ['pessoa' => $pessoa]);
+        return Inertia::render('Pessoas/Edit', ['pessoa' => $pessoa]);
     }
 
     /**
@@ -62,7 +78,7 @@ class PessoaController extends Controller
     {
         $pessoa->update($request->validated());
 
-        return redirect()->route('pessoa.index')->with('success', "Pessoa {$pessoa->nome} atualizada com sucesso!");
+        return redirect()->route('pessoas.show', $pessoa)->with('success', 'Pessoa atualizada com sucesso.');
     }
 
     /**
@@ -72,6 +88,6 @@ class PessoaController extends Controller
     {
         $pessoa->delete();
 
-        return redirect()->route('pessoa.index')->with('success', "Pessoa {$pessoa->nome} removida com sucesso!");
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa removida com sucesso.');
     }
 }
