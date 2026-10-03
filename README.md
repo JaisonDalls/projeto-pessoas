@@ -1,58 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Projeto Pessoas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicação web de cadastro e gerenciamento de pessoas, com operações para listar, pesquisar, filtrar, visualizar, cadastrar, editar e excluir registros.
 
-## About Laravel
+Este é um projeto de teste desenvolvido durante um processo de candidatura à [Apresenta.me](https://apresenta.me/), empresa que oferece um sistema de gestão imobiliária. É um protótipo para demonstração técnica, não um produto oficial da empresa.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tecnologias
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3 ou superior e Laravel 13
+- Inertia.js 2, Vue 3 e Ziggy
+- Tailwind CSS e Vite 8
+- SQLite por padrão; MySQL também pode ser configurado
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+A interface acompanha automaticamente a preferência de aparência do sistema operacional (claro ou escuro).
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Git
+- PHP 8.3+, Composer 2 e extensões PHP `mbstring`, `fileinfo`, `openssl`, `pdo`, `pdo_sqlite`, `xml`, `dom` e `curl`
+- Node.js 20.19+ ou 22.12+, com npm
+- Para usar MySQL: extensão PHP `pdo_mysql` e um servidor MySQL acessível
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Confira as versões e extensões com:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```sh
+php -v
+composer -V
+node -v
+npm -v
+php -m
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Instale as extensões para a mesma versão do PHP usada pelo terminal. `mbstring` e `pdo_sqlite` são especialmente necessárias para os comandos Laravel, o banco padrão e os testes.
 
-## Contributing
+## Baixar e executar
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Clone o repositório e entre na pasta:
 
-## Code of Conduct
+```sh
+git clone https://github.com/JaisonDalls/projeto-pessoas.git
+cd projeto-pessoas
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+O projeto usa SQLite por padrão. O comando de configuração instala as dependências, cria `.env` a partir de `.env.example`, gera a chave da aplicação, prepara o banco, executa as migrações e compila os arquivos do frontend:
 
-## Security Vulnerabilities
+```sh
+composer run setup
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Inicie a aplicação:
 
-## License
+```sh
+composer run dev
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Abra `http://localhost:8000` no navegador. Para encerrar os processos, pressione `Ctrl+C`.
+
+### Executar os processos separadamente
+
+Depois de `composer run setup`, abra dois terminais na pasta do projeto. No primeiro, rode o servidor Laravel:
+
+```sh
+php artisan serve
+```
+
+No segundo, inicie o Vite:
+
+```sh
+npm run dev
+```
+
+Acesse `http://localhost:8000`. Encerre cada processo com `Ctrl+C` no terminal correspondente.
+
+### Windows PowerShell
+
+Os comandos `git clone`, `composer run setup` e `composer run dev` também funcionam no PowerShell, desde que PHP, Composer, Node.js e npm estejam no `PATH`. Na configuração manual, copie o arquivo de ambiente com:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### Usar MySQL
+
+Crie um banco vazio e configure `.env` antes de executar as migrações. Exemplo:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=projeto_pessoas
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
+
+Como `composer run setup` aplica as migrações usando a configuração atual, para MySQL siga o fluxo manual: instale as dependências, copie `.env`, edite as variáveis acima e então gere a chave, migre e compile:
+
+```sh
+composer install
+cp .env.example .env
+# Edite .env com os dados do seu banco MySQL
+php artisan key:generate
+php artisan migrate --seed
+npm install
+npm run build
+composer run dev
+```
+
+No PowerShell, use `Copy-Item .env.example .env` no lugar de `cp`.
+
+## Comandos úteis
+
+```sh
+php artisan migrate
+php artisan test
+npm run build
+```
+
+`php artisan migrate:fresh --seed` recria todas as tabelas e apaga os dados existentes. Use-o somente em um banco descartável.
+
+## Assistentes de código
+
+Os assistentes ajudam a navegar e alterar o código, mas não substituem o servidor. A instalação e a execução são iguais com ou sem um assistente: use `composer run setup` e `composer run dev`.
+
+- **GitHub Copilot no VS Code:** abra a pasta clonada no VS Code e use o modo Agent. As instruções do projeto estão em `.github/copilot-instructions.md` e `AGENTS.md`.
+- **Claude Code:** instale-o conforme a [documentação oficial](https://docs.anthropic.com/en/docs/claude-code/overview), abra um terminal na pasta do projeto e execute `claude`. As instruções específicas estão em `CLAUDE.md`.
+- **Outros agentes:** abra a raiz do repositório; `AGENTS.md` contém a arquitetura, as convenções e os comandos de validação.
+
+O uso de assistentes é opcional. O projeto pode ser instalado e executado apenas pelo terminal.
+
+## Estrutura principal
+
+- `app/Http/Controllers` e `app/Http/Requests`: operações e validações HTTP
+- `app/Models`: modelos Eloquent
+- `database/migrations` e `database/seeders`: estrutura e dados iniciais do banco
+- `resources/js/Pages`: páginas Vue renderizadas pelo Inertia
+- `routes/web.php`: rotas da aplicação
+- `tests`: testes automatizados

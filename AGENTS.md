@@ -1,47 +1,25 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# Instrucoes para agentes
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+Leia `README.md` para instalar e executar o projeto. Agentes ajudam a trabalhar no codigo, mas nao substituem o servidor da aplicacao.
 
-## Prerequisites
+## Contexto
 
-Verify that PHP and Composer are available:
+- Projeto de teste criado para um processo de candidatura a Apresenta.me, empresa de sistema de gestao imobiliaria. Nao o descreva como produto oficial.
+- Stack: Laravel 13, PHP 8.3+, Inertia.js 2, Vue 3, Tailwind CSS e Vite.
+- O CRUD principal e de `Pessoa`; as rotas usam o prefixo nomeado `pessoas.*`.
+- A interface e em portugues. Os valores persistidos para tipo sao `física` e `jurídica`.
 
-```sh
-php -v
-composer -V
-```
+## Convencoes
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+- Mantenha operacoes HTTP em controllers e regras de validacao em Form Requests.
+- Mantenha paginas Inertia em `resources/js/Pages` e componentes reutilizaveis em `resources/js/Components`.
+- Preserve o tema que acompanha `prefers-color-scheme` e reutilize tokens `app-theme-*` de `resources/css/app.css`.
+- Nunca inclua `.env`, credenciais, chaves ou dados pessoais reais em alteracoes.
+- Evite alteracoes destrutivas no banco. `php artisan migrate:fresh` apaga todos os dados.
 
-macOS:
+## Validacao
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+- Frontend: `npm run build`.
+- Backend: `php artisan test` ou um teste direcionado.
+- Se testes ou comandos Laravel falharem, confira extensoes PHP, especialmente `mbstring` e `pdo_sqlite`.
+- Nao instale Laravel Boost nem execute configuradores de agente sem solicitacao.
