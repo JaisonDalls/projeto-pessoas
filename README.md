@@ -56,13 +56,13 @@ O frontend é compilado durante a criação da imagem. Não é necessário insta
 
 Crie um **Web Service** conectado ao repositório e selecione **Docker** como ambiente. Use `Dockerfile` na raiz como caminho do arquivo e configure `/up` como health check. A imagem escuta em `0.0.0.0` na porta definida por `PORT` (o padrão é `10000`, conforme o Render).
 
-Configure as seguintes variáveis no serviço:
+Configure as seguintes variáveis no serviço. `APP_URL` deve usar `https` e o domínio atribuído pelo Render:
 
 ```text
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=<chave gerada para produção>
-APP_URL=https://<endereco-do-servico>.onrender.com
+APP_URL=https://projeto-pessoas.onrender.com
 ```
 
 Gere uma chave localmente com `php artisan key:generate --show` e informe o resultado como `APP_KEY` nas variáveis do Render. Não use a chave de desenvolvimento nem a inclua no repositório.

@@ -12,6 +12,6 @@ class PessoaSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        
     }
 }

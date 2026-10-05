@@ -16,4 +16,16 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_assets_use_https_behind_a_tls_terminating_proxy(): void
+    {
+        $response = $this
+            ->withHeader('X-Forwarded-Proto', 'https')
+            ->get('/');
+
+        $response
+            ->assertOk()
+            ->assertSee('https://localhost/build/', escape: false)
+            ->assertDontSee('http://localhost/build/', escape: false);
+    }
 }
