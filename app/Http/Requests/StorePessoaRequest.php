@@ -14,7 +14,10 @@ class StorePessoaRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $nome = $this->input('nome');
+
         $this->merge([
+            'nome' => is_string($nome) ? mb_convert_case($nome, MB_CASE_TITLE, 'UTF-8') : $nome,
             'cpf' => $this->cpf ? preg_replace('/\D/', '', $this->cpf) : null,
             'telefone' => $this->telefone ? preg_replace('/\D/', '', $this->telefone) : null,
         ]);

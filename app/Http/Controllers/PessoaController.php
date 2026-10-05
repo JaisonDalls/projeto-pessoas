@@ -6,6 +6,7 @@ use App\Http\Requests\StorePessoaRequest;
 use App\Http\Requests\UpdatePessoaRequest;
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PessoaController extends Controller
@@ -19,11 +20,16 @@ class PessoaController extends Controller
 
         $pessoas = Pessoa::query()
             ->when($filters['search'] ?? null, function ($query, $search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('nome', 'like', "%{$search}%")
-                        ->orWhere('cpf', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('telefone', 'like', "%{$search}%");
+                $searchTerm = '%'.mb_strtolower($search, 'UTF-8').'%';
+                $lowercaseFunction = DB::connection()->getDriverName() === 'sqlite'
+                    ? 'unicode_lower'
+                    : 'LOWER';
+
+                $query->where(function ($query) use ($searchTerm, $lowercaseFunction) {
+                    $query->whereRaw("{$lowercaseFunction}(nome) LIKE ?", [$searchTerm])
+                        ->orWhere('cpf', 'like', $searchTerm)
+                        ->orWhereRaw("{$lowercaseFunction}(email) LIKE ?", [$searchTerm])
+                        ->orWhere('telefone', 'like', $searchTerm);
                 });
             })
             ->when($filters['tipo'] ?? null, fn ($query, $tipo) => $query->where('tipo', $tipo))

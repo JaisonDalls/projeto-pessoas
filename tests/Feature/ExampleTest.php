@@ -25,7 +25,7 @@ class ExampleTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('https://localhost/build/', escape: false)
-            ->assertDontSee('http://localhost/build/', escape: false);
+            ->assertSee('https://localhost:8000/build/', escape: false)
+            ->assertDontSee('http://localhost:8000/build/', escape: false);
     }
 }

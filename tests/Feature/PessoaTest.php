@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class PessoaTest extends TestCase
@@ -18,7 +19,7 @@ class PessoaTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->post(route('pessoas.store'), [
-                'nome' => 'João da Silva',
+                'nome' => 'jOÃO dA sILVA',
                 'cpf' => '123.456.789-01',
                 'tipo' => 'física',
                 'telefone' => '(11) 98765-4321',
@@ -27,15 +28,35 @@ class PessoaTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('pessoas.index'));
+            ->assertRedirect(route('pessoas.show', Pessoa::query()->firstOrFail()));
 
         $this->assertDatabaseHas('pessoas', [
-            'nome' => 'João da Silva',
+            'nome' => 'João Da Silva',
             'cpf' => '12345678901',
             'tipo' => 'física',
             'telefone' => '11987654321',
             'email' => 'joao@example.com',
         ]);
+    }
+
+    public function test_pessoa_search_is_case_insensitive(): void
+    {
+        $user = User::factory()->create();
+        Pessoa::factory()->create(['nome' => 'ANA SILVA']);
+        Pessoa::factory()->create(['nome' => 'João Silva']);
+
+        foreach ([
+            ['search' => 'ana', 'name' => 'ANA SILVA'],
+            ['search' => 'ANA', 'name' => 'ANA SILVA'],
+            ['search' => 'JOÃO', 'name' => 'João Silva'],
+        ] as $case) {
+            $this->actingAs($user)
+                ->get(route('pessoas.index', ['search' => $case['search']]))
+                ->assertInertia(fn (Assert $page) => $page
+                    ->component('Pessoas/Index')
+                    ->has('pessoas.data', 1)
+                    ->where('pessoas.data.0.nome', $case['name']));
+        }
     }
 
     public function test_authenticated_user_can_view_update_and_delete_a_pessoa(): void
@@ -49,7 +70,7 @@ class PessoaTest extends TestCase
 
         $this->actingAs($user)
             ->put(route('pessoas.update', $pessoa), [
-                'nome' => 'Nome atualizado',
+                'nome' => 'nOME aTUALIZADO',
                 'cpf' => $pessoa->cpf,
                 'tipo' => $pessoa->tipo,
                 'telefone' => '(11) 98765-4321',
@@ -60,7 +81,7 @@ class PessoaTest extends TestCase
 
         $this->assertDatabaseHas('pessoas', [
             'id' => $pessoa->id,
-            'nome' => 'Nome atualizado',
+            'nome' => 'Nome Atualizado',
             'email' => 'atualizado@example.com',
         ]);
 
