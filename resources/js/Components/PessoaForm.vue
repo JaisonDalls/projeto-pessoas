@@ -12,6 +12,34 @@ const form = useForm({
     email: props.pessoa?.email ?? '',
 });
 
+function formatName(value) {
+    return value
+        .toLocaleLowerCase('pt-BR')
+        .replace(/(^|[^\p{L}\p{M}])(\p{L})/gu, (_, separator, letter) => (
+            `${separator}${letter.toLocaleUpperCase('pt-BR')}`
+        ));
+}
+
+function capitalizeName(event) {
+    if (event.isComposing) {
+        return;
+    }
+
+    const input = event.target;
+    const cursorPosition = input.selectionStart;
+    const rawValue = input.value;
+    const formattedValue = formatName(rawValue);
+
+    form.nome = formattedValue;
+    input.value = formattedValue;
+
+    if (cursorPosition !== null) {
+        const formattedCursorPosition = formatName(rawValue.slice(0, cursorPosition)).length;
+
+        input.setSelectionRange(formattedCursorPosition, formattedCursorPosition);
+    }
+}
+
 function submit() {
     if (props.pessoa) {
         form.put(route('pessoas.update', props.pessoa.id));
@@ -35,7 +63,7 @@ function submit() {
 
         <div>
             <label for="nome" class="block text-sm font-medium text-gray-700">Nome / Razão social</label>
-            <input id="nome" v-model="form.nome" type="text" required maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+            <input id="nome" v-model="form.nome" @input="capitalizeName" type="text" required maxlength="255" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
             <p v-if="form.errors.nome" class="mt-1 text-sm text-red-600">{{ form.errors.nome }}</p>
         </div>
 
