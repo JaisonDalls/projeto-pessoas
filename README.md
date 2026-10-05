@@ -13,7 +13,48 @@ Este é um projeto de teste desenvolvido durante um processo de candidatura à [
 
 A interface acompanha automaticamente a preferência de aparência do sistema operacional (claro ou escuro).
 
-## Requisitos
+## Executar com Docker
+
+- Git e Docker com o plugin Docker Compose
+
+Clone o repositório e entre na pasta:
+
+```sh
+git clone https://github.com/JaisonDalls/projeto-pessoas.git
+cd projeto-pessoas
+```
+
+Inicie a aplicação com um único comando:
+
+```sh
+docker compose up -d
+```
+
+Na primeira execução, o Docker compila a imagem do backend e do frontend, cria a chave da aplicação e prepara o banco SQLite. Quando o processo terminar, acesse <http://localhost:8000>.
+
+O banco de dados e a chave da aplicação ficam no volume Docker `projeto-pessoas_app-data`, preservados ao recriar o container. Para acompanhar a inicialização e os logs:
+
+```sh
+docker compose logs -f app
+```
+
+Para parar os containers sem apagar os dados:
+
+```sh
+docker compose down
+```
+
+Para reconstruir a imagem após alterações no código:
+
+```sh
+docker compose up -d --build
+```
+
+O frontend é compilado durante a criação da imagem. Não é necessário instalar PHP, Composer ou Node.js na máquina para executar a aplicação com Docker.
+
+## Executar localmente (sem Docker)
+
+Requisitos:
 
 - Git
 - PHP 8.3+, Composer 2 e extensões PHP `mbstring`, `fileinfo`, `openssl`, `pdo`, `pdo_sqlite`, `xml`, `dom` e `curl`
@@ -32,14 +73,7 @@ php -m
 
 Instale as extensões para a mesma versão do PHP usada pelo terminal. `mbstring` e `pdo_sqlite` são especialmente necessárias para os comandos Laravel, o banco padrão e os testes.
 
-## Baixar e executar
-
-Clone o repositório e entre na pasta:
-
-```sh
-git clone https://github.com/JaisonDalls/projeto-pessoas.git
-cd projeto-pessoas
-```
+## Instalação local
 
 O projeto usa SQLite por padrão. O comando de configuração instala as dependências, cria `.env` a partir de `.env.example`, gera a chave da aplicação, prepara o banco, executa as migrações e compila os arquivos do frontend:
 
