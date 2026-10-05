@@ -52,6 +52,30 @@ docker compose up -d --build
 
 O frontend é compilado durante a criação da imagem. Não é necessário instalar PHP, Composer ou Node.js na máquina para executar a aplicação com Docker.
 
+### Publicar no Render
+
+Crie um **Web Service** conectado ao repositório e selecione **Docker** como ambiente. Use `Dockerfile` na raiz como caminho do arquivo e configure `/up` como health check. A imagem escuta em `0.0.0.0` na porta definida por `PORT` (o padrão é `10000`, conforme o Render).
+
+Configure as seguintes variáveis no serviço:
+
+```text
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=<chave gerada para produção>
+APP_URL=https://<endereco-do-servico>.onrender.com
+```
+
+Gere uma chave localmente com `php artisan key:generate --show` e informe o resultado como `APP_KEY` nas variáveis do Render. Não use a chave de desenvolvimento nem a inclua no repositório.
+
+Para persistir os dados em produção, use um banco PostgreSQL gerenciado e configure:
+
+```text
+DB_CONNECTION=pgsql
+DB_URL=<Internal Database URL do PostgreSQL no Render>
+```
+
+O container executa `php artisan migrate --force` ao iniciar. Não use o SQLite local como armazenamento de produção: o sistema de arquivos do serviço pode ser efêmero e os dados podem ser perdidos em novos deploys.
+
 ## Executar localmente (sem Docker)
 
 Requisitos:

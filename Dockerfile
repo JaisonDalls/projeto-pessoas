@@ -3,10 +3,11 @@ FROM php:8.3-cli-bookworm AS php-base
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libonig-dev \
+        libpq-dev \
         libsqlite3-dev \
         libxml2-dev \
         unzip \
-    && docker-php-ext-install mbstring pdo_sqlite dom xml \
+    && docker-php-ext-install mbstring pdo_pgsql pdo_sqlite dom xml \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -54,6 +55,10 @@ COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/docker-entrypoint
 
 USER www-data
 
-EXPOSE 8000
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    LOG_CHANNEL=stderr
+
+EXPOSE 10000
 
 ENTRYPOINT ["docker-entrypoint"]
