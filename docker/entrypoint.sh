@@ -8,6 +8,11 @@ DATABASE_FILE="$APP_DATA_DIR/database.sqlite"
 mkdir -p "$APP_DATA_DIR"
 
 if [ -z "${APP_KEY:-}" ]; then
+    if [ "${APP_ENV:-local}" = production ]; then
+        echo "APP_KEY must be set when APP_ENV=production." >&2
+        exit 1
+    fi
+
     if [ ! -s "$APP_KEY_FILE" ]; then
         php artisan key:generate --show > "$APP_KEY_FILE.tmp"
         mv "$APP_KEY_FILE.tmp" "$APP_KEY_FILE"
@@ -17,7 +22,10 @@ if [ -z "${APP_KEY:-}" ]; then
     export APP_KEY
 fi
 
-touch "$DATABASE_FILE"
+if [ "${DB_CONNECTION:-sqlite}" = sqlite ]; then
+    touch "$DATABASE_FILE"
+fi
+
 php artisan migrate --force
 
-exec php artisan serve --host=0.0.0.0 --port=8000
+exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
