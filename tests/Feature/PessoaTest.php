@@ -20,7 +20,7 @@ class PessoaTest extends TestCase
             ->actingAs($user)
             ->post(route('pessoas.store'), [
                 'nome' => 'jOÃO dA sILVA',
-                'cpf' => '123.456.789-01',
+                'cpf' => '529.982.247-25',
                 'tipo' => 'física',
                 'telefone' => '(11) 98765-4321',
                 'email' => 'joao@example.com',
@@ -32,11 +32,83 @@ class PessoaTest extends TestCase
 
         $this->assertDatabaseHas('pessoas', [
             'nome' => 'João Da Silva',
-            'cpf' => '12345678901',
+            'cpf' => '52998224725',
             'tipo' => 'física',
             'telefone' => '11987654321',
             'email' => 'joao@example.com',
         ]);
+    }
+
+    public function test_authenticated_user_can_create_a_pessoa_with_a_valid_cnpj(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('pessoas.store'), [
+                'nome' => 'empresa exemplo',
+                'cpf' => '11.222.333/0001-81',
+                'tipo' => 'jurídica',
+                'telefone' => '(11) 3333-4444',
+                'email' => 'empresa@example.com',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('pessoas', [
+            'cpf' => '11222333000181',
+            'tipo' => 'jurídica',
+        ]);
+    }
+
+    public function test_authenticated_user_cannot_create_a_pessoa_with_invalid_document_check_digits(): void
+    {
+        $user = User::factory()->create();
+
+        foreach ([
+            ['tipo' => 'física', 'cpf' => '529.982.247-26', 'message' => 'Informe um CPF válido.'],
+            ['tipo' => 'física', 'cpf' => '123.456.789-0', 'message' => 'Informe um CPF válido.'],
+            ['tipo' => 'física', 'cpf' => '111.111.111-11', 'message' => 'Informe um CPF válido.'],
+            ['tipo' => 'jurídica', 'cpf' => '11.222.333/0001-80', 'message' => 'Informe um CNPJ válido.'],
+            ['tipo' => 'jurídica', 'cpf' => '11.222.333/0001-8', 'message' => 'Informe um CNPJ válido.'],
+            ['tipo' => 'jurídica', 'cpf' => '11.111.111/1111-11', 'message' => 'Informe um CNPJ válido.'],
+        ] as $document) {
+            $this->actingAs($user)
+                ->post(route('pessoas.store'), [
+                    ...$document,
+                    'nome' => 'Pessoa de teste',
+                    'telefone' => '',
+                    'email' => 'pessoa@example.com',
+                ])
+                ->assertSessionHasErrors(['cpf' => $document['message']]);
+        }
+
+        $this->assertDatabaseCount('pessoas', 0);
+    }
+
+    public function test_duplicate_document_error_message_matches_person_type(): void
+    {
+        $user = User::factory()->create();
+        Pessoa::factory()->create([
+            'cpf' => '52998224725',
+            'tipo' => 'física',
+        ]);
+        Pessoa::factory()->create([
+            'cpf' => '11222333000181',
+            'tipo' => 'jurídica',
+        ]);
+
+        foreach ([
+            ['tipo' => 'física', 'cpf' => '529.982.247-25', 'message' => 'Este CPF já está cadastrado para outra pessoa.'],
+            ['tipo' => 'jurídica', 'cpf' => '11.222.333/0001-81', 'message' => 'Este CNPJ já está cadastrado para outra pessoa.'],
+        ] as $document) {
+            $this->actingAs($user)
+                ->post(route('pessoas.store'), [
+                    ...$document,
+                    'nome' => 'Pessoa de teste',
+                    'telefone' => '',
+                    'email' => 'pessoa@example.com',
+                ])
+                ->assertSessionHasErrors(['cpf' => $document['message']]);
+        }
     }
 
     public function test_pessoa_search_is_case_insensitive(): void
@@ -71,8 +143,8 @@ class PessoaTest extends TestCase
         $this->actingAs($user)
             ->put(route('pessoas.update', $pessoa), [
                 'nome' => 'nOME aTUALIZADO',
-                'cpf' => $pessoa->cpf,
-                'tipo' => $pessoa->tipo,
+                'cpf' => '529.982.247-25',
+                'tipo' => 'física',
                 'telefone' => '(11) 98765-4321',
                 'email' => 'atualizado@example.com',
             ])
@@ -82,6 +154,7 @@ class PessoaTest extends TestCase
         $this->assertDatabaseHas('pessoas', [
             'id' => $pessoa->id,
             'nome' => 'Nome Atualizado',
+            'cpf' => '52998224725',
             'email' => 'atualizado@example.com',
         ]);
 

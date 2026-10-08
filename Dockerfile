@@ -19,6 +19,11 @@ FROM php-base AS composer-deps
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts
 
+FROM php-base AS composer-test-deps
+
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --prefer-dist --no-scripts
+
 FROM node:22-alpine AS frontend
 
 WORKDIR /app
@@ -32,6 +37,19 @@ COPY vite.config.js tailwind.config.js postcss.config.js jsconfig.json ./
 COPY --from=composer-deps /var/www/html/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 
 RUN npm run build
+
+FROM php-base AS testing
+
+WORKDIR /var/www/html
+
+COPY . .
+COPY --from=composer-test-deps /var/www/html/vendor ./vendor
+COPY --from=frontend /app/public/build ./public/build
+
+RUN cp .env.example .env \
+    && php artisan key:generate --force
+
+CMD ["php", "artisan", "test"]
 
 FROM php-base AS app
 

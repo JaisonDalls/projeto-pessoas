@@ -47,8 +47,18 @@ docker compose down
 Para reconstruir a imagem após alterações no código:
 
 ```sh
-docker compose up -d --build
+docker compose up -d --build app
 ```
+
+O formulário valida CPF e CNPJ conforme o tipo de pessoa, incluindo o tamanho e os dígitos verificadores, e informa especificamente quando o documento já está cadastrado. Na listagem e na visualização do contato, CPF/CNPJ e telefone são exibidos formatados.
+
+Para executar a suíte de testes em um container com as dependências de desenvolvimento:
+
+```sh
+docker compose run --rm test
+```
+
+Esse serviço instala as extensões PHP e dependências de teste necessárias, incluindo PHPUnit, sem adicioná-las à imagem usada pela aplicação.
 
 O frontend é compilado durante a criação da imagem. Não é necessário instalar PHP, Composer ou Node.js na máquina para executar a aplicação com Docker.
 
