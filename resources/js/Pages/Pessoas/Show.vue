@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { formatDocument, formatPhone } from '@/utils/pessoaFormatters';
 
 const props = defineProps({ pessoa: { type: Object, required: true } });
 const form = useForm({});
@@ -27,8 +28,8 @@ function destroy() {
                     <dl class="grid gap-6 sm:grid-cols-2">
                         <div class="sm:col-span-2"><dt class="text-sm text-gray-500">Nome / Razão social</dt><dd class="mt-1 font-medium text-gray-900">{{ pessoa.nome }}</dd></div>
                         <div><dt class="text-sm text-gray-500">Tipo</dt><dd class="mt-1 text-gray-900">{{ pessoa.tipo === 'física' ? 'Pessoa física' : 'Pessoa jurídica' }}</dd></div>
-                        <div><dt class="text-sm text-gray-500">CPF / CNPJ</dt><dd class="mt-1 font-mono text-gray-900">{{ pessoa.cpf }}</dd></div>
-                        <div><dt class="text-sm text-gray-500">Telefone</dt><dd class="mt-1 text-gray-900">{{ pessoa.telefone || 'Não informado' }}</dd></div>
+                        <div><dt class="text-sm text-gray-500">CPF / CNPJ</dt><dd class="mt-1 font-mono text-gray-900">{{ formatDocument(pessoa.cpf) }}</dd></div>
+                        <div><dt class="text-sm text-gray-500">Telefone</dt><dd class="mt-1 text-gray-900">{{ pessoa.telefone ? formatPhone(pessoa.telefone) : 'Não informado' }}</dd></div>
                         <div><dt class="text-sm text-gray-500">E-mail</dt><dd class="mt-1 text-gray-900">{{ pessoa.email }}</dd></div>
                     </dl>
                     <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-5">
